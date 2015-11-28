@@ -9,6 +9,8 @@ import (
 
 var (
 	errNotSupportWrite = errors.New("Write is not supported in read-only transaction")
+	errEmptyKey = errors.New("Key must contain data")
+	errEmptyValue = errors.New("Value must contain data")
 )
 
 type Magneticdb struct {
@@ -49,6 +51,22 @@ func New(path string, open bool) (*Magneticdb, error){
 func (mdb *Magneticdb) Set(key, value string) error{
 	if mgb.readonly {
 		return errNotSupportWrite
+	}
+
+	if mdb.keysizelimit < len(key) {
+		return fmt.Errorf("Key size must be < %d", mdb.keysizelimit)
+	}
+
+	if mdb.valuesizelimit < len(value) {
+		return fmt.Errorf("Value size must be < %d", mdb.valuesizelimit)
+	}
+
+	if key == "" {
+		return errEmptyKey
+	}
+
+	if value == "" {
+		return errEmptyValue
 	}
 	return nil
 }
