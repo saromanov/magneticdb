@@ -1,10 +1,9 @@
 package magneticdb
 import (
-  "os/ioutil"
   "os"
-  "log"
   "sync"
   "errors"
+  "fmt"
 )
 
 var (
@@ -49,15 +48,15 @@ func New(path string, open bool) (*Magneticdb, error){
 
 // Set provides insert key-value item
 func (mdb *Magneticdb) Set(key, value string) error{
-	if mgb.readonly {
+	if mdb.readonly {
 		return errNotSupportWrite
 	}
 
-	if mdb.keysizelimit < len(key) {
+	if mdb.keysizelimit < uint(len(key)) {
 		return fmt.Errorf("Key size must be < %d", mdb.keysizelimit)
 	}
 
-	if mdb.valuesizelimit < len(value) {
+	if mdb.valuesizelimit < uint(len(value)) {
 		return fmt.Errorf("Value size must be < %d", mdb.valuesizelimit)
 	}
 
@@ -86,7 +85,7 @@ func (mdb *Magneticdb) Close() {
 
 // create new file
 func (mdb *Magneticdb) createPath(path string) error {
-	item, err := ioutil.Open(path, os.O_RDWR | os.O_CREATE, 0666)
+	_, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
@@ -94,14 +93,15 @@ func (mdb *Magneticdb) createPath(path string) error {
 	return nil
 }
 
-func (mdb *Magneticdb) openPath(path string) err {
-	item, err := ioutil.Open(path, os.O_RDWR, 0666)
+func (mdb *Magneticdb) openPath(path string) error {
+	item, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
 		return err
 	}
 
-	info, errinfo := item.Stat()
+	_, errinfo := item.Stat()
 	if errinfo == nil {
-		return err
+		return errinfo
 	}
+	return nil
 }
