@@ -5,11 +5,6 @@ import (
 	"github.com/google/btree"
 )
 
-type IndexEntry struct {
-	Idx       string
-	Tablename string
-	Modify    bool
-}
 
 var (
 	errIndexNotFound = errors.New("Index not found")
@@ -25,6 +20,10 @@ func NewIndex() *Index {
 		indexies: map[string]*IndexEntry{},
 		tree:     btree.New(128),
 	}
+}
+
+func (idx *Index) Put(title string) {
+	idx.tree.ReplaceOrInsert(&IndexEntry{Tablename: title})
 }
 
 func (idx *Index) FindIndex(title string) (*IndexEntry, error) {
