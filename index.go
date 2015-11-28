@@ -17,13 +17,13 @@ var (
 
 type Index struct {
 	indexies map[string]*IndexEntry
-	tree     *btree.Btree
+	tree     *btree.BTree
 }
 
 func NewIndex() *Index {
 	return &Index{
 		indexies: map[string]*IndexEntry{},
-		tree:     &btree.Btree{},
+		tree:     btree.New(128),
 	}
 }
 
@@ -46,6 +46,6 @@ func (idx *Index) DropIndex(title string) error {
 	return nil
 }
 
-func (idx *Index) Equal(idx int) {
+func (idx *Index) Equal(id int) {
 
 }
