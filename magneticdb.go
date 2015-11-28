@@ -4,6 +4,7 @@ import (
   "sync"
   "errors"
   "fmt"
+  "time"
 )
 
 var (
@@ -12,17 +13,29 @@ var (
 	errEmptyValue = errors.New("Value must contain data")
 )
 
+// MagneticdbOpt provides options 
+// for configuration MagneticDB
+type MagneticdbOpt struct {
+	Snapshot time.Duration
+	SnapshotPath string
+}
+
 type Magneticdb struct {
 	keysizelimit uint
 	valuesizelimit uint
 	readonly bool
+	shanpshot time.Duration
+	shanshotpath string
 	commitlock *sync.RWMutex
 	statlock *sync.RWMutex
 	oplock *sync.RWMutex
 }
 
 // New provides setnew path to DB
-func New(path string, open bool) (*Magneticdb, error){
+func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
+	if opt == nil {
+		opt = defaultParams()
+	}
 
 	mdb := &Magneticdb {
 		keysizelimit: 25,
@@ -104,4 +117,12 @@ func (mdb *Magneticdb) openPath(path string) error {
 		return errinfo
 	}
 	return nil
+}
+
+// provide default options for Magneticdb
+func defaultParams()*MagneticdbOpt {
+	return &MagneticdbOpt {
+		Snapshot: 10 * time.Second,
+		SnapshotPath: "magneticdb.snapshow",
+	}
 }
