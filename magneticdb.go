@@ -82,6 +82,8 @@ func (mdb *Magneticdb) Set(key, value string) error{
 	if value == "" {
 		return errEmptyValue
 	}
+	mdb.oplock.Lock()
+	defer mdb.oplock.Unlock()
 
 	keybyte := []byte(key)
 	valuebyte := []byte(value)
@@ -96,6 +98,11 @@ func (mdb *Magneticdb) Get(key string) error {
 
 func (mdb *Magneticdb) SetReadonly(value bool) {
 	mdb.readonly = value
+}
+
+// Info provides information by key-value pair
+func (mdb *Magneticdb) InfoItem(key string) {
+
 }
 
 func (mdb *Magneticdb) Close() {
