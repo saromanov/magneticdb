@@ -26,6 +26,7 @@ type Magneticdb struct {
 	readonly bool
 	shanpshot time.Duration
 	shanshotpath string
+	index      *Index
 	commitlock *sync.RWMutex
 	statlock *sync.RWMutex
 	oplock *sync.RWMutex
@@ -44,6 +45,7 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 		commitlock: &sync.RWMutex{},
 		statlock: &sync.RWMutex{},
 		oplock: &sync.RWMutex{},
+		index: NewIndex(),
 	}
 	var err error
 	if open {
@@ -80,6 +82,10 @@ func (mdb *Magneticdb) Set(key, value string) error{
 	if value == "" {
 		return errEmptyValue
 	}
+
+	keybyte := []byte(key)
+	valuebyte := []byte(value)
+	fmt.Println(keybyte, valuebyte)
 	return nil
 }
 
