@@ -9,6 +9,7 @@ import (
 
 var (
 	errNotSupportWrite = errors.New("Write is not supported in read-only transaction")
+	errNotSupportRead = errors.New("Read is not supported in write-only transaction")
 	errEmptyKey = errors.New("Key must contain data")
 	errEmptyValue = errors.New("Value must contain data")
 )
@@ -87,12 +88,18 @@ func (mdb *Magneticdb) Set(key, value string) error{
 
 	keybyte := []byte(key)
 	valuebyte := []byte(value)
+
 	fmt.Println(keybyte, valuebyte)
 	return nil
 }
 
 // Get provides getting value by key
 func (mdb *Magneticdb) Get(key string) error {
+	if !mdb.readonly {
+		return errNotSupportRead
+	}
+	keybyte := []byte(key)
+	mdb.index.Put(keybyte)
 	return nil
 }
 

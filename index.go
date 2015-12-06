@@ -22,8 +22,8 @@ func NewIndex() *Index {
 	}
 }
 
-func (idx *Index) Put(title string) {
-	idx.tree.ReplaceOrInsert(&IndexEntry{Tablename: title})
+func (idx *Index) Put(title []byte) {
+	idx.tree.ReplaceOrInsert(&IndexEntry{Key: title})
 }
 
 func (idx *Index) FindIndex(title string) (*IndexEntry, error) {
