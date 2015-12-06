@@ -96,6 +96,7 @@ func (mdb *Magneticdb) Get(key string) error {
 	return nil
 }
 
+// SetReadonly provides setting only read transaction
 func (mdb *Magneticdb) SetReadonly(value bool) {
 	mdb.readonly = value
 }
@@ -105,6 +106,7 @@ func (mdb *Magneticdb) InfoItem(key string) {
 
 }
 
+// Close provides closing current session od Magneticdb
 func (mdb *Magneticdb) Close() {
 
 }
@@ -119,6 +121,7 @@ func (mdb *Magneticdb) createPath(path string) error {
 	return nil
 }
 
+// openPath provides open db data
 func (mdb *Magneticdb) openPath(path string) error {
 	item, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
