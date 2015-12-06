@@ -5,6 +5,7 @@ import (
   "errors"
   "fmt"
   "time"
+  //"log"
 )
 
 var (
@@ -28,6 +29,7 @@ type Magneticdb struct {
 	shanpshot time.Duration
 	shanshotpath string
 	index      *Index
+	buckets    *Bucket
 	commitlock *sync.RWMutex
 	statlock *sync.RWMutex
 	oplock *sync.RWMutex
@@ -58,12 +60,17 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 	if err != nil {
 		return nil, err
 	}
+	mdb.buckets = NewBucket()
 
 	return mdb, nil
 }
 
+func (mdb *Magneticdb) CreateBucket(title string) {
+	mdb.buckets.CreateBucket(title)
+}
+
 // Set provides insert key-value item
-func (mdb *Magneticdb) Set(key, value string) error{
+func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 	if mdb.readonly {
 		return errNotSupportWrite
 	}
@@ -88,8 +95,7 @@ func (mdb *Magneticdb) Set(key, value string) error{
 
 	keybyte := []byte(key)
 	valuebyte := []byte(value)
-
-	fmt.Println(keybyte, valuebyte)
+	mdb.buckets.SetToBucket(bucketname, keybyte, valuebyte)
 	return nil
 }
 

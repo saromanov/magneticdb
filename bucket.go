@@ -5,14 +5,21 @@ import (
 	"reflect"
 )
 
-type Bucket struct {
-	items map[string][]*Item
-}
-
 var (
 	errBucketIsNotExist = errors.New("Bucket is not exist")
 	errKeyIsNotFound    = errors.New("Key is not found")
 )
+
+type Bucket struct {
+	items map[string][]*Item
+}
+
+// New provides creational of the new bucket
+func NewBucket() *Bucket {
+	b := new(Bucket)
+	b.items = map[string][]*Item{}
+	return b
+}
 
 // CreateBucket provides creational of the new bucket
 func (b *Bucket) CreateBucket(title string) {
