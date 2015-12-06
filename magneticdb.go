@@ -95,18 +95,22 @@ func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 
 	keybyte := []byte(key)
 	valuebyte := []byte(value)
+	mdb.index.Put(keybyte)
 	mdb.buckets.SetToBucket(bucketname, keybyte, valuebyte)
 	return nil
 }
 
 // Get provides getting value by key
-func (mdb *Magneticdb) Get(key string) error {
+func (mdb *Magneticdb) Get(bucketname, key string) (string, error) {
 	if !mdb.readonly {
-		return errNotSupportRead
+		return "", errNotSupportRead
 	}
 	keybyte := []byte(key)
-	mdb.index.Put(keybyte)
-	return nil
+	valuebyte, err := mdb.buckets.GetFromBucket(bucketname, keybyte)
+	if err != nil {
+		return "", err
+	}
+	return string(valuebyte), nil
 }
 
 // SetReadonly provides setting only read transaction
