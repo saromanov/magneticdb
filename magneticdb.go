@@ -65,8 +65,8 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 	return mdb, nil
 }
 
-func (mdb *Magneticdb) CreateBucket(title string) {
-	mdb.buckets.CreateBucket(title)
+func (mdb *Magneticdb) CreateBucket(title string) error {
+	return mdb.buckets.CreateBucket(title)
 }
 
 // Set provides insert key-value item

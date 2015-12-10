@@ -8,6 +8,7 @@ import (
 var (
 	errBucketIsNotExist = errors.New("Bucket is not exist")
 	errKeyIsNotFound    = errors.New("Key is not found")
+	errBucketExist      = errors.New("Bucket already exist")
 )
 
 type Bucket struct {
@@ -22,8 +23,13 @@ func NewBucket() *Bucket {
 }
 
 // CreateBucket provides creational of the new bucket
-func (b *Bucket) CreateBucket(title string) {
+func (b *Bucket) CreateBucket(title string) error {
+	_, ok := b.items[title]
+	if ok {
+		return errBucketExist
+	}
 	b.items[title] = []*Item{}
+	return nil
 }
 
 func (b *Bucket) SetToBucket(title string, key, value []byte) error {
