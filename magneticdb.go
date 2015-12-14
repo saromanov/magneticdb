@@ -5,6 +5,7 @@ import (
   "errors"
   "fmt"
   "time"
+  "sync/atomic"
   //"log"
 )
 
@@ -22,6 +23,7 @@ type MagneticdbOpt struct {
 	SnapshotPath string
 }
 
+// Magneticdb provides main struct
 type Magneticdb struct {
 	keysizelimit uint
 	valuesizelimit uint
