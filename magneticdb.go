@@ -29,6 +29,7 @@ type Magneticdb struct {
 	readonly bool
 	shanpshot time.Duration
 	shanshotpath string
+	path       string
 	index      *Index
 	buckets    *Bucket
 	stat       *Stat
@@ -48,6 +49,7 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 		keysizelimit: 25,
 		valuesizelimit: 1000,
 		readonly: false,
+		path:     path,
 		commitlock: &sync.RWMutex{},
 		statlock: &sync.RWMutex{},
 		oplock: &sync.RWMutex{},
@@ -135,6 +137,10 @@ func (mdb *Magneticdb) Stat()map[string] string {
 		"numgets": fmt.Sprintf("%d", mdb.stat.numget),
 		"numsets": fmt.Sprintf("%d", mdb.stat.numset),
 	}
+}
+
+func (mdb *Magneticdb) String() string {
+	return fmt.Sprintf("Path: %s", mdb.path)
 }
 
 // Close provides closing current session od Magneticdb
