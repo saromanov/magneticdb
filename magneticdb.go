@@ -31,6 +31,8 @@ type Magneticdb struct {
 	shanshotpath string
 	index      *Index
 	buckets    *Bucket
+	stat       *Stat
+
 	commitlock *sync.RWMutex
 	statlock *sync.RWMutex
 	oplock *sync.RWMutex
@@ -50,6 +52,7 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 		statlock: &sync.RWMutex{},
 		oplock: &sync.RWMutex{},
 		index: NewIndex(),
+		stat: NewStat(),
 	}
 	var err error
 	if open {
@@ -98,6 +101,7 @@ func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 	valuebyte := []byte(value)
 	mdb.index.Put(keybyte)
 	mdb.buckets.SetToBucket(bucketname, keybyte, valuebyte)
+	mdb.stat.IncSet()
 	return nil
 }
 
@@ -111,6 +115,7 @@ func (mdb *Magneticdb) Get(bucketname, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	mdb.stat.IncGet()
 	return string(valuebyte), nil
 }
 
@@ -122,6 +127,14 @@ func (mdb *Magneticdb) SetReadonly(value bool) {
 // Info provides information by key-value pair
 func (mdb *Magneticdb) InfoItem(key string) {
 
+}
+
+// Stat return information about statictics 
+func (mdb *Magneticdb) Stat()map[string] string {
+	return map[string] string {
+		"numgets": fmt.Sprintf("%d", mdb.stat.numget),
+		"numsets": fmt.Sprintf("%d", mdb.stat.numset),
+	}
 }
 
 // Close provides closing current session od Magneticdb
