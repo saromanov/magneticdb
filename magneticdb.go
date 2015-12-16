@@ -46,7 +46,7 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 	}
 
 	mdb := &Magneticdb {
-		keysizelimit: 25,
+		keysizelimit: 20,
 		valuesizelimit: 1000,
 		readonly: false,
 		path:     path,
