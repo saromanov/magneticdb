@@ -20,6 +20,7 @@ var (
 type MagneticdbOpt struct {
 	Snapshot time.Duration
 	SnapshotPath string
+	Log     *LoggerConfig
 }
 
 // Magneticdb provides main struct
@@ -33,6 +34,7 @@ type Magneticdb struct {
 	index      *Index
 	buckets    *Bucket
 	stat       *Stat
+	logger     *Logger
 
 	commitlock *sync.RWMutex
 	statlock *sync.RWMutex
@@ -66,6 +68,9 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 	if err != nil {
 		return nil, err
 	}
+
+	mdb.logger = NewLogger(opt.Log)
+
 	mdb.buckets = NewBucket()
 
 	return mdb, nil
@@ -73,16 +78,19 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 
 //CreateBucket provides creature of the new bucket
 func (mdb *Magneticdb) CreateBucket(title string) error {
+	mdb.logger.Info(fmt.Sprintf("Create bucket %s", title))
 	return mdb.buckets.CreateBucket(title)
 }
 
 // Set provides insert key-value item
 func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 	if mdb.readonly {
+		mdb.logger.Info("Magneticdb in readomly mode")
 		return errNotSupportWrite
 	}
 
 	if mdb.keysizelimit < uint(len(key)) {
+		mdb.logger.Error(fmt.Sprintf("Key size must be < %d", mdb.keysizelimit))
 		return fmt.Errorf("Key size must be < %d", mdb.keysizelimit)
 	}
 
@@ -91,10 +99,12 @@ func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 	}
 
 	if key == "" {
+		mdb.logger.Error("Key is empty")
 		return errEmptyKey
 	}
 
 	if value == "" {
+		mdb.logger.Error("Value is empty")
 		return errEmptyValue
 	}
 	mdb.oplock.Lock()
@@ -102,7 +112,9 @@ func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 
 	keybyte := []byte(key)
 	valuebyte := []byte(value)
+	mdb.logger.Info("Set value to index")
 	mdb.index.Put(keybyte)
+	mdb.logger.Info(fmt.Sprintf("Set to the bucket %s", bucketname))
 	mdb.buckets.SetToBucket(bucketname, keybyte, valuebyte)
 	mdb.stat.IncSet()
 	return nil
@@ -114,6 +126,7 @@ func (mdb *Magneticdb) Get(bucketname, key string) (string, error) {
 		return "", errNotSupportRead
 	}
 	keybyte := []byte(key)
+	mdb.logger.Info(fmt.Sprintf("Getting from the bucket bucket %s by key %s", bucketname, key))
 	valuebyte, err := mdb.buckets.GetFromBucket(bucketname, keybyte)
 	if err != nil {
 		return "", err
