@@ -1,8 +1,8 @@
 package magneticdb
 
 import (
+	"bytes"
 	"errors"
-	"reflect"
 )
 
 var (
@@ -75,7 +75,7 @@ func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
 	}
 
 	for _, item := range items {
-		if reflect.DeepEqual(key, item.key) {
+		if bytes.Equal(key, item.key) {
 			return item.value, nil
 		}
 	}
