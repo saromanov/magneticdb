@@ -71,6 +71,7 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 	return mdb, nil
 }
 
+//CreateBucket provides creature of the new bucket
 func (mdb *Magneticdb) CreateBucket(title string) error {
 	return mdb.buckets.CreateBucket(title)
 }
@@ -139,6 +140,7 @@ func (mdb *Magneticdb) Stat()map[string] string {
 	}
 }
 
+// String return string representation(Path) for magneticdb
 func (mdb *Magneticdb) String() string {
 	return fmt.Sprintf("Path: %s", mdb.path)
 }
