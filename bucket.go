@@ -11,8 +11,17 @@ var (
 	errBucketExist      = errors.New("Bucket already exist")
 )
 
+// BucketConfig provides configuration for each bucket.
+// Optional parameter for CreateBucket
+type BucketConfig struct {
+	keysize   uint
+	valuesize uint
+}
+
 type Bucket struct {
-	items map[string][]*Item
+	items     map[string][]*Item
+	keysize   uint
+	valuesize uint
 }
 
 // New provides creational of the new bucket
@@ -23,7 +32,16 @@ func NewBucket() *Bucket {
 }
 
 // CreateBucket provides creational of the new bucket
-func (b *Bucket) CreateBucket(title string) error {
+func (b *Bucket) CreateBucket(title string, cfg *BucketConfig) error {
+	if cfg != nil {
+		if cfg.keysize != 0 {
+			b.keysize = cfg.keysize
+		}
+
+		if cfg.valuesize != 0 {
+			b.valuesize = cfg.valuesize
+		}
+	}
 	_, ok := b.items[title]
 	if ok {
 		return errBucketExist
@@ -36,6 +54,10 @@ func (b *Bucket) SetToBucket(title string, key, value []byte) error {
 	_, ok := b.items[title]
 	if !ok {
 		return errBucketIsNotExist
+	}
+
+	if b.keysize != 0 && b.keysize > uint(len(key)) {
+
 	}
 
 	newitem, err := set(title, key, value)

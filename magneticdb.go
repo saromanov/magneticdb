@@ -77,9 +77,9 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 }
 
 //CreateBucket provides creature of the new bucket
-func (mdb *Magneticdb) CreateBucket(title string) error {
+func (mdb *Magneticdb) CreateBucket(title string, cfg *BucketConfig) error {
 	mdb.logger.Info(fmt.Sprintf("Create bucket %s", title))
-	return mdb.buckets.CreateBucket(title)
+	return mdb.buckets.CreateBucket(title, cfg)
 }
 
 // Set provides insert key-value item
