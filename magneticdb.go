@@ -31,6 +31,7 @@ type Magneticdb struct {
 	shanpshot time.Duration
 	shanshotpath string
 	path       string
+	CommitFile *os.File
 	index      *Index
 	buckets    *Bucket
 	stat       *Stat
@@ -59,16 +60,18 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 		stat: NewStat(),
 	}
 	var err error
+	var f *os.File
 	if open {
-		err = mdb.openPath(path)
+		f, err = mdb.openPath(path)
 	} else {
-		err = mdb.createPath(path)
+		f, err = mdb.createPath(path)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
+	mdb.CommitFile = f
 	mdb.logger = NewLogger(opt.Log)
 
 	mdb.buckets = NewBucket()
@@ -135,6 +138,15 @@ func (mdb *Magneticdb) Get(bucketname, key string) (string, error) {
 	return string(valuebyte), nil
 }
 
+// Commit provides commit changes to the disk
+func (mdb *Magneticdb) Commit() error {
+	mdb.commitlock.Lock()
+	defer mdb.commitlock.Unlock()
+	lastchange := time.Now().String()
+	mdb.CommitFile.Write([]byte(lastchange))
+	return nil
+}
+
 // SetReadonly provides setting only read transaction
 func (mdb *Magneticdb) SetReadonly(value bool) {
 	mdb.readonly = value
@@ -160,31 +172,31 @@ func (mdb *Magneticdb) String() string {
 
 // Close provides closing current session od Magneticdb
 func (mdb *Magneticdb) Close() {
-
+	mdb.CommitFile.Close()
 }
 
 // create new file
-func (mdb *Magneticdb) createPath(path string) error {
-	_, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0666)
+func (mdb *Magneticdb) createPath(path string) (*os.File, error) {
+	item, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0666)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return item, nil
 }
 
 // openPath provides open db data
-func (mdb *Magneticdb) openPath(path string) error {
+func (mdb *Magneticdb) openPath(path string) (*os.File, error) {
 	item, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, errinfo := item.Stat()
 	if errinfo == nil {
-		return errinfo
+		return nil, errinfo
 	}
-	return nil
+	return item, nil
 }
 
 // provide default options for Magneticdb
