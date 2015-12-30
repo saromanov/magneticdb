@@ -50,6 +50,7 @@ func (b *Bucket) CreateBucket(title string, cfg *BucketConfig) error {
 	return nil
 }
 
+// SetToBucket provides setting ley-value to new bucket
 func (b *Bucket) SetToBucket(title string, key, value []byte) error {
 	_, ok := b.items[title]
 	if !ok {
@@ -68,6 +69,7 @@ func (b *Bucket) SetToBucket(title string, key, value []byte) error {
 	return nil
 }
 
+// SetTagsToItemFromBucket provides setting tags to item from bucket
 func (b *Bucket) SetTagsToItemFromBucket(title string, key []byte, tags []string) error {
 	items, ok := b.items[title]
 	if !ok {
@@ -84,6 +86,7 @@ EXIT:
 	return nil
 }
 
+//GetFromBucket provides getting value fron item from bucket
 func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
 	items, ok := b.items[title]
 	if !ok {
