@@ -9,6 +9,7 @@ type Item struct {
 	key []byte
 	value []byte
 	limit uint
+	tags []string
 }
 
 var (
@@ -25,4 +26,8 @@ func set(bucketname string, key, value []byte)(*Item, error) {
 		key: key,
 		value: value,
 	}, nil
+}
+
+func (item *Item) setTags(tags[]string){
+	item.tags = tags
 }

@@ -68,6 +68,22 @@ func (b *Bucket) SetToBucket(title string, key, value []byte) error {
 	return nil
 }
 
+func (b *Bucket) SetTagsToItemFromBucket(title string, key []byte, tags []string) error {
+	items, ok := b.items[title]
+	if !ok {
+		return errBucketIsNotExist
+	}
+
+	for _, item := range items {
+		if bytes.Equal(key, item.key) {
+			item.tags = tags
+			goto EXIT
+		}
+	}
+EXIT:
+	return nil
+}
+
 func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
 	items, ok := b.items[title]
 	if !ok {
