@@ -8,6 +8,7 @@ import (
 
 var (
 	errIndexNotFound = errors.New("Index not found")
+	defaultdegree = 128
 )
 
 type Index struct {
@@ -18,7 +19,7 @@ type Index struct {
 func NewIndex() *Index {
 	return &Index{
 		indexies: map[string]*IndexEntry{},
-		tree:     btree.New(128),
+		tree:     btree.New(defaultdegree),
 	}
 }
 
