@@ -22,6 +22,11 @@ func NewIndex() *Index {
 	}
 }
 
+// CreateIndex provides new index
+func (idx *Index) CreateIndex(title string){
+	idx.indexies[title] = &IndexEntry{}
+}
+
 func (idx *Index) Put(title []byte) {
 	idx.tree.ReplaceOrInsert(&IndexEntry{Key: title})
 }

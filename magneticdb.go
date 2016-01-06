@@ -85,6 +85,11 @@ func (mdb *Magneticdb) CreateBucket(title string, cfg *BucketConfig) error {
 	return mdb.buckets.CreateBucket(title, cfg)
 }
 
+// CreateIndex porvides new index to MagneticDB
+func (mdb *Magneticdb) CreateIndex(title string){
+	mdb.index.CreateIndex(title)
+}
+
 // Set provides insert key-value item
 func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 	if mdb.readonly {
