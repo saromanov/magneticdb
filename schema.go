@@ -2,9 +2,14 @@ package magneticdb
 
 
 type Schema struct {
-	Tables map[string]*Table
+	Tables []*Table
 }
 
 type Table struct {
 	Name string
+	Columns []*Column
+}
+
+type Column struct {
+	Name  string
 }

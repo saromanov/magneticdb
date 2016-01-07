@@ -34,6 +34,7 @@ type Magneticdb struct {
 	CommitFile *os.File
 	index      *Index
 	buckets    *Bucket
+	schemas    map[string]*Schema
 	stat       *Stat
 	logger     *Logger
 
@@ -53,6 +54,7 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 		valuesizelimit: 1000,
 		readonly: false,
 		path:     path,
+		schemas: map[string]*Schema{},
 		commitlock: &sync.RWMutex{},
 		statlock: &sync.RWMutex{},
 		oplock: &sync.RWMutex{},
@@ -88,6 +90,17 @@ func (mdb *Magneticdb) CreateBucket(title string, cfg *BucketConfig) error {
 // CreateIndex porvides new index to MagneticDB
 func (mdb *Magneticdb) CreateIndex(title string){
 	mdb.index.CreateIndex(title)
+}
+
+// CreateSchema provides creational of the new schema
+func (mdb *Magneticdb) CreateSchema(name string, schema *Schema) error{
+	_, ok := mdb.schemas[name]
+	if ok {
+		return fmt.Errorf("Schema with the name %s already exist", name)
+	}
+
+	mdb.schemas[name] = schema
+	return nil
 }
 
 // Set provides insert key-value item
