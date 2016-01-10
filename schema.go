@@ -25,9 +25,8 @@ type Column struct {
 // if schema is valid and false otherwise
 func ValidateSchema(schema *Schema)bool {
 	start := reflect.ValueOf(schema).MapKeys()
-	fmt.Println(start)
-	/*for _, item := range start {
+	for _, item := range start {
 		fmt.Println(reflect.TypeOf(item).Name())
-	}*/
+	}
 	return true
 }
