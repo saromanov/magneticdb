@@ -16,14 +16,14 @@ type Table struct {
 	Columns []*Column
 }
 
-// Column must contain name
+// Column must contain the name
 type Column struct {
 	Name  string
 }
 
 // ValidateSchema provides validation of schema and return true
 // if schema is valid and false otherwise
-func ValidateSchema(schema *Schema)bool {
+func ValidateSchema(schema *Schema) bool {
 	start := reflect.ValueOf(schema).MapKeys()
 	for _, item := range start {
 		fmt.Println(reflect.TypeOf(item).Name())
