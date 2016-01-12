@@ -36,3 +36,15 @@ func TestCreateBucket(t *testing.T) {
 		t.Errorf(fmt.Sprintf("%v", err))
 	}
 }
+
+func TestSet(t *testing.T) {
+	db, err = New(dbname, false, nil)
+	if err != nil {
+		t.Errorf(fmt.Sprintf("%v", err))
+	}
+	defer removeDB()
+	err = db.Set("key", "value")
+	if err != nil {
+		t.Errorf(fmt.Sprintf("%v", err))
+	}
+}
