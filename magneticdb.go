@@ -98,12 +98,12 @@ func (mdb *Magneticdb) CreateSchema(name string, schema *Schema) error{
 	if ok {
 		return fmt.Errorf("Schema with the name %s already exist", name)
 	}
-
+	ValidateSchema(schema)
 	mdb.schemas[name] = schema
 	return nil
 }
 
-// Set provides insert key-value item
+// Set provides insert key-value item with bucket name
 func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 	if mdb.readonly {
 		mdb.logger.Info("Magneticdb in readomly mode")
