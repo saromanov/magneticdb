@@ -109,3 +109,14 @@ func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
 
 	return nil, errKeyIsNotFound
 }
+
+func (b *Bucket) Buckets()([]string, error) {
+	items := make([]string, len(b.items))
+	i := 0
+	for key, _ := range b.items {
+		items[i] = key
+		i++
+	}
+
+	return items, nil
+}

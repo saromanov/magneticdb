@@ -156,6 +156,11 @@ func (mdb *Magneticdb) Get(bucketname, key string) (string, error) {
 	return string(valuebyte), nil
 }
 
+// Buckets returns list of the buckets
+func (mdb *Magneticdb) Buckets()([]string, error) {
+	return mdb.buckets.Buckets()
+}
+
 // Commit provides commit changes to the disk
 func (mdb *Magneticdb) Commit() error {
 	mdb.commitlock.Lock()
