@@ -23,6 +23,7 @@ type Bucket struct {
 	items     map[string][]*Item
 	keysize   uint
 	valuesize uint
+	compress bool
 
 	mutex *sync.RWMutex
 }

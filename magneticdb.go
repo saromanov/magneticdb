@@ -21,6 +21,7 @@ type MagneticdbOpt struct {
 	Snapshot time.Duration
 	SnapshotPath string
 	Log     *LoggerConfig
+	Compress bool
 }
 
 // Magneticdb provides main struct
@@ -37,6 +38,7 @@ type Magneticdb struct {
 	schemas    map[string]*Schema
 	stat       *Stat
 	logger     *Logger
+	compress   bool
 
 	commitlock *sync.RWMutex
 	statlock *sync.RWMutex
@@ -60,6 +62,7 @@ func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 		oplock: &sync.RWMutex{},
 		index: NewIndex(),
 		stat: NewStat(),
+		compress: opt.Compress,
 	}
 	var err error
 	var f *os.File
