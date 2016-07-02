@@ -3,6 +3,7 @@ package magneticdb
 import (
 	"bytes"
 	"errors"
+	"sync"
 )
 
 var (
@@ -22,6 +23,8 @@ type Bucket struct {
 	items     map[string][]*Item
 	keysize   uint
 	valuesize uint
+
+	mutex *sync.RWMutex
 }
 
 // New provides creational of the new bucket
@@ -47,11 +50,14 @@ func (b *Bucket) CreateBucket(title string, cfg *BucketConfig) error {
 		return errBucketExist
 	}
 	b.items[title] = []*Item{}
+	b.mutex = &sync.RWMutex{}
 	return nil
 }
 
 // SetToBucket provides setting ley-value to new bucket
 func (b *Bucket) SetToBucket(title string, key, value []byte) error {
+	b.mutex.RLock()
+	defer b.mutex.RUnlock()
 	_, ok := b.items[title]
 	if !ok {
 		return errBucketIsNotExist
@@ -88,6 +94,8 @@ EXIT:
 
 //GetFromBucket provides getting value fron item from bucket
 func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
+	b.mutex.RLock()
+	defer b.mutex.RUnlock()
 	items, ok := b.items[title]
 	if !ok {
 		return nil, errBucketIsNotExist
