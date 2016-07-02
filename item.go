@@ -12,6 +12,16 @@ type Item struct {
 	tags []string
 }
 
+func (item*Item) Copy()*Item {
+	return &Item {
+		bucketname: item.bucketname,
+		key: item.key,
+		value: item.value,
+		limit: item.limit,
+		tags: item.tags,
+	}
+}
+
 var (
 	errEmptyBucketName = errors.New("Length of the bucket name can't be equals to zero")
 )

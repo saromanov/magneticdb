@@ -17,6 +17,7 @@ var (
 type BucketConfig struct {
 	keysize   uint
 	valuesize uint
+	compress bool
 }
 
 type Bucket struct {
@@ -45,6 +46,8 @@ func (b *Bucket) CreateBucket(title string, cfg *BucketConfig) error {
 		if cfg.valuesize != 0 {
 			b.valuesize = cfg.valuesize
 		}
+
+		b.compress = cfg.compress
 	}
 
 	title = preprocessName(title)
@@ -65,6 +68,15 @@ func (b *Bucket) SetToBucket(title string, key, value []byte) error {
 	_, ok := b.items[title]
 	if !ok {
 		return errBucketIsNotExist
+	}
+
+	if b.compress {
+		valueData, err := compress(value)
+		if err != nil {
+			return err
+		}
+
+		value = valueData
 	}
 
 	if b.keysize != 0 && b.keysize > uint(len(key)) {
@@ -107,6 +119,14 @@ func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
 
 	for _, item := range items {
 		if bytes.Equal(key, item.key) {
+			if b.compress {
+				result, err := decompress(item.value)
+				if err != nil {
+					return []byte{}, err
+				}
+
+				return result, nil
+			}
 			return item.value, nil
 		}
 	}
@@ -115,11 +135,9 @@ func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
 }
 
 func (b *Bucket) Buckets()([]string, error) {
-	items := make([]string, len(b.items))
-	i := 0
+	items :=  make([]string, 0, len(b.items))
 	for key, _ := range b.items {
-		items[i] = key
-		i++
+		items = append(items, key)
 	}
 
 	return items, nil
