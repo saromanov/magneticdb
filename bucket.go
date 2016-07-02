@@ -45,6 +45,8 @@ func (b *Bucket) CreateBucket(title string, cfg *BucketConfig) error {
 			b.valuesize = cfg.valuesize
 		}
 	}
+
+	title = preprocessName(title)
 	_, ok := b.items[title]
 	if ok {
 		return errBucketExist
