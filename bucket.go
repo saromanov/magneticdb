@@ -3,6 +3,7 @@ package magneticdb
 import (
 	"bytes"
 	"errors"
+	"sort"
 	"sync"
 )
 
@@ -139,6 +140,8 @@ func (b *Bucket) Buckets()([]string, error) {
 	for key, _ := range b.items {
 		items = append(items, key)
 	}
+
+	sort.Strings(items)
 
 	return items, nil
 }
