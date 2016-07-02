@@ -6,7 +6,7 @@ import (
 	"compress/gzip"
 )
 
-func compres(body []byte) ([]byte, error) {
+func compress(body []byte) ([]byte, error) {
 	var b bytes.Buffer
 	w, err := gzip.NewWriterLevel(&b, 9)
 	defer w.Close()
@@ -17,7 +17,7 @@ func compres(body []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func decompres(body []byte) ([]byte, error) {
+func decompress(body []byte) ([]byte, error) {
 	var out bytes.Buffer
 	b := bytes.NewReader(body)
 
