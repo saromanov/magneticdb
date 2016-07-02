@@ -60,6 +60,7 @@ func (b *Bucket) CreateBucket(title string, cfg *BucketConfig) error {
 func (b *Bucket) SetToBucket(title string, key, value []byte) error {
 	b.mutex.RLock()
 	defer b.mutex.RUnlock()
+	title = preprocessName(title)
 	_, ok := b.items[title]
 	if !ok {
 		return errBucketIsNotExist
