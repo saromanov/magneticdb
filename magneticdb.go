@@ -106,7 +106,7 @@ func (mdb *Magneticdb) CreateSchema(name string, schema *Schema) error{
 // Set provides insert key-value item with bucket name
 func (mdb *Magneticdb) Set(bucketname, key, value string) error{
 	if mdb.readonly {
-		mdb.logger.Info("Magneticdb in readomly mode")
+		mdb.logger.Info("Magneticdb in readonly mode")
 		return errNotSupportWrite
 	}
 
