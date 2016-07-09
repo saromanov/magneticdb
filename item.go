@@ -21,6 +21,8 @@ func (item*Item) Copy()*Item {
 		value: item.value,
 		limit: item.limit,
 		tags: item.tags,
+		readCount: item.readCount,
+		writeCount: item.writeCount,
 	}
 }
 
