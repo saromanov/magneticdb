@@ -166,6 +166,9 @@ func (mdb *Magneticdb) Buckets()([]string, error) {
 
 // Commit provides commit changes to the disk
 func (mdb *Magneticdb) Commit() error {
+	if mdb.readonly {
+		return []string{}, errors.New("read-only mode")
+	}
 	mdb.commitlock.Lock()
 	defer mdb.commitlock.Unlock()
 	lastchange := time.Now().String()
