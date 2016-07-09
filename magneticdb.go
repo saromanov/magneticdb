@@ -159,6 +159,14 @@ func (mdb *Magneticdb) Get(bucketname, key string) (string, error) {
 	return string(valuebyte), nil
 }
 
+func (mdb *Magneticdb) GetStatForKey(bucketname, key string) error {
+	if !mdb.readonly {
+		return errNotSupportRead
+	}
+
+	return nil	
+}
+
 // Buckets returns list of the buckets
 func (mdb *Magneticdb) Buckets()([]string, error) {
 	return mdb.buckets.Buckets()

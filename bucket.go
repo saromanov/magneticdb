@@ -112,29 +112,28 @@ EXIT:
 
 //GetFromBucket provides getting value fron item from bucket
 func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
-	b.mutex.RLock()
-	defer b.mutex.RUnlock()
-	items, ok := b.items[title]
-	if !ok {
-		return nil, errBucketIsNotExist
+	item, err := b.read(title, key)
+	if err != nil {
+		return []byte{}, err
 	}
-
-	for _, item := range items {
-		if bytes.Equal(key, item.key) {
-			atomic.AddUint64(&item.readCount, 1)
-			if b.compress {
-				result, err := decompress(item.value)
-				if err != nil {
-					return []byte{}, err
-				}
-
-				return result, nil
-			}
-			return item.value, nil
+	if b.compress {
+		result, err := decompress(item.value)
+		if err != nil {
+			return nil, err
 		}
+
+		return result, nil
+	}
+	return item.value, nil
+}
+
+func (b *Bucket) GetStatForKey(title string, key[]byte) (uint64, error) {
+	item, err := b.read(title, key)
+	if err != nil {
+		return 0, err
 	}
 
-	return nil, errKeyIsNotFound
+	return item.readCount, nil
 }
 
 func (b *Bucket) Buckets()([]string, error) {
@@ -146,4 +145,22 @@ func (b *Bucket) Buckets()([]string, error) {
 	sort.Strings(items)
 
 	return items, nil
+}
+
+func (b *Bucket) read(title string, key []byte) (*Item, error) {
+	b.mutex.RLock()
+	defer b.mutex.RUnlock()
+	items, ok := b.items[title]
+	if !ok {
+		return nil, errBucketIsNotExist
+	}
+
+	for _, item := range items {
+		if bytes.Equal(key, item.key) {
+			atomic.AddUint64(&item.readCount, 1)
+			return item, nil
+		}
+	}
+
+	return nil, errKeyIsNotFound
 }
