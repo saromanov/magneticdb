@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sort"
 	"sync"
+	"sync/atomic"
 )
 
 var (
@@ -120,6 +121,7 @@ func (b *Bucket) GetFromBucket(title string, key []byte) ([]byte, error) {
 
 	for _, item := range items {
 		if bytes.Equal(key, item.key) {
+			atomic.AddUint64(&item.readCount, 1)
 			if b.compress {
 				result, err := decompress(item.value)
 				if err != nil {

@@ -10,6 +10,8 @@ type Item struct {
 	value []byte
 	limit uint
 	tags []string
+	readCount uint64
+	writeCount uint64
 }
 
 func (item*Item) Copy()*Item {
