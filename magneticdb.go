@@ -1,70 +1,77 @@
 package magneticdb
+
 import (
-  "os"
-  "sync"
-  "errors"
-  "fmt"
-  "time"
-  //"log"
+	"errors"
+	"fmt"
+	"os"
+	"sync"
+	"time"
+  "bytes"
+	//"log"
 )
 
 var (
 	errNotSupportWrite = errors.New("Write is not supported in read-only transaction")
-	errNotSupportRead = errors.New("Read is not supported in write-only transaction")
-	errEmptyKey = errors.New("Key must contain data")
-	errEmptyValue = errors.New("Value must contain data")
+	errNotSupportRead  = errors.New("Read is not supported in write-only transaction")
+	errEmptyKey        = errors.New("Key must contain data")
+	errEmptyValue      = errors.New("Value must contain data")
+)
+
+var (
+  BEGIN = []byte("0k76")
+  END = []byte("z7ok")
 )
 
 // MagneticdbOpt provides options
 // for configuration MagneticDB
 type MagneticdbOpt struct {
-	Snapshot time.Duration
+	Snapshot     time.Duration
 	SnapshotPath string
-	Log     *LoggerConfig
-	Compress bool
+	Log          *LoggerConfig
+	Compress     bool
 }
 
 // Magneticdb provides main struct
 type Magneticdb struct {
-	keysizelimit uint
+	keysizelimit   uint
 	valuesizelimit uint
-	readonly bool
-	shanpshot time.Duration
-	shanshotpath string
-	f       *os.File
-	CommitFile *os.File
-	index      *Index
-	buckets    *Bucket
-	schemas    map[string]*Schema
-	stat       *Stat
-	logger     *Logger
-	compress   bool
+	readonly       bool
+	shanpshot      time.Duration
+	shanshotpath   string
+	f              *os.File
+	CommitFile     *os.File
+	index          *Index
+	buckets        *Bucket
+	schemas        map[string]*Schema
+	stat           *Stat
+	logger         *Logger
+	compress       bool
 
 	commitlock *sync.RWMutex
-	statlock *sync.RWMutex
-	oplock *sync.RWMutex
+	statlock   *sync.RWMutex
+	oplock     *sync.RWMutex
 }
 
 // New provides setnew path to DB
-func New(f *os.File, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
+func New(f *os.File, open bool, opt *MagneticdbOpt) (*Magneticdb, error) {
 	if opt == nil {
 		opt = defaultParams()
 	}
 
-  path := "default"
-	mdb := &Magneticdb {
-		keysizelimit: 20,
+	path := "default"
+	mdb := &Magneticdb{
+		keysizelimit:   20,
 		valuesizelimit: 1000,
-		readonly: false,
-		f:     f,
-    path:path,
-		schemas: map[string]*Schema{},
-		commitlock: &sync.RWMutex{},
-		statlock: &sync.RWMutex{},
-		oplock: &sync.RWMutex{},
-		index: NewIndex(),
-		stat: NewStat(),
-		compress: opt.Compress,
+		readonly:       false,
+		f:              f,
+		path:           path,
+		schemas:        map[string]*Schema{},
+		commitlock:     &sync.RWMutex{},
+		statlock:       &sync.RWMutex{},
+		oplock:         &sync.RWMutex{},
+		index:          NewIndex(),
+		stat:           NewStat(),
+		compress:       opt.Compress,
 	}
 	var err error
 	var f *os.File
@@ -93,12 +100,12 @@ func (mdb *Magneticdb) CreateBucket(title string, cfg *BucketConfig) error {
 }
 
 // CreateIndex porvides new index to MagneticDB
-func (mdb *Magneticdb) CreateIndex(title string){
+func (mdb *Magneticdb) CreateIndex(title string) {
 	mdb.index.CreateIndex(title)
 }
 
 // CreateSchema provides creational of the new schema
-func (mdb *Magneticdb) CreateSchema(name string, schema *Schema) error{
+func (mdb *Magneticdb) CreateSchema(name string, schema *Schema) error {
 	_, ok := mdb.schemas[name]
 	if ok {
 		return fmt.Errorf("Schema with the name %s already exist", name)
@@ -109,7 +116,7 @@ func (mdb *Magneticdb) CreateSchema(name string, schema *Schema) error{
 }
 
 // Set provides insert key-value item with bucket name
-func (mdb *Magneticdb) Set(bucketname, key, value string) error{
+func (mdb *Magneticdb) Set(bucketname, key, value string) error {
 	if mdb.readonly {
 		mdb.logger.Info("Magneticdb in readonly mode")
 		return errNotSupportWrite
@@ -170,7 +177,7 @@ func (mdb *Magneticdb) GetStatForKey(bucketname, key string) error {
 }
 
 // Buckets returns list of the buckets
-func (mdb *Magneticdb) Buckets()([]string, error) {
+func (mdb *Magneticdb) Buckets() ([]string, error) {
 	return mdb.buckets.Buckets()
 }
 
@@ -197,8 +204,8 @@ func (mdb *Magneticdb) InfoItem(key string) {
 }
 
 // Stat return information about statictics
-func (mdb *Magneticdb) Stat()map[string] string {
-	return map[string] string {
+func (mdb *Magneticdb) Stat() map[string]string {
+	return map[string]string{
 		"numgets": fmt.Sprintf("%d", mdb.stat.numget),
 		"numsets": fmt.Sprintf("%d", mdb.stat.numset),
 	}
@@ -216,7 +223,7 @@ func (mdb *Magneticdb) Close() {
 
 // create new file
 func (mdb *Magneticdb) createPath(path string) (*os.File, error) {
-	item, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0666)
+	item, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -238,10 +245,23 @@ func (mdb *Magneticdb) openPath(path string) (*os.File, error) {
 	return item, nil
 }
 
+// Flush: write data to teh disk
+func (mdb *Magneticdb) Flush() error {
+   result, err = json.Marshal(mdb.Buckets)
+   if err != nil {
+     return err
+   }
+
+  length := len(MAGIC_BEG)+2 + len(result)
+	b := bytes.NewBuffer(make([]byte, length)[:0])
+	b.Write(MAGIC_BEG)
+
+}
+
 // provide default options for Magneticdb
-func defaultParams()*MagneticdbOpt {
-	return &MagneticdbOpt {
-		Snapshot: 10 * time.Second,
+func defaultParams() *MagneticdbOpt {
+	return &MagneticdbOpt{
+		Snapshot:     10 * time.Second,
 		SnapshotPath: "magneticdb.snapshow",
 	}
 }
