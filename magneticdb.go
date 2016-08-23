@@ -15,7 +15,7 @@ var (
 	errEmptyValue = errors.New("Value must contain data")
 )
 
-// MagneticdbOpt provides options 
+// MagneticdbOpt provides options
 // for configuration MagneticDB
 type MagneticdbOpt struct {
 	Snapshot time.Duration
@@ -31,7 +31,7 @@ type Magneticdb struct {
 	readonly bool
 	shanpshot time.Duration
 	shanshotpath string
-	path       string
+	f       *os.File
 	CommitFile *os.File
 	index      *Index
 	buckets    *Bucket
@@ -46,16 +46,18 @@ type Magneticdb struct {
 }
 
 // New provides setnew path to DB
-func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
+func New(f *os.File, open bool, opt *MagneticdbOpt) (*Magneticdb, error){
 	if opt == nil {
 		opt = defaultParams()
 	}
 
+  path := "default"
 	mdb := &Magneticdb {
 		keysizelimit: 20,
 		valuesizelimit: 1000,
 		readonly: false,
-		path:     path,
+		f:     f,
+    path:path,
 		schemas: map[string]*Schema{},
 		commitlock: &sync.RWMutex{},
 		statlock: &sync.RWMutex{},
@@ -164,7 +166,7 @@ func (mdb *Magneticdb) GetStatForKey(bucketname, key string) error {
 		return errNotSupportRead
 	}
 
-	return nil	
+	return nil
 }
 
 // Buckets returns list of the buckets
@@ -194,7 +196,7 @@ func (mdb *Magneticdb) InfoItem(key string) {
 
 }
 
-// Stat return information about statictics 
+// Stat return information about statictics
 func (mdb *Magneticdb) Stat()map[string] string {
 	return map[string] string {
 		"numgets": fmt.Sprintf("%d", mdb.stat.numget),
