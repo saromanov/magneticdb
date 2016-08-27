@@ -1,13 +1,14 @@
 package magneticdb
 
 import (
-	"bytes"
-	"encoding/json"
+	"bufio"
 	"errors"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sync"
 	"time"
+  "bytes"
 	//"log"
 )
 
@@ -19,8 +20,8 @@ var (
 )
 
 var (
-	BEGIN = []byte("0k76")
-	END   = []byte("z7ok")
+  BEGIN = []byte("0k76")
+  END = []byte("z7ok")
 )
 
 // MagneticdbOpt provides options
@@ -37,7 +38,7 @@ type Magneticdb struct {
 	keysizelimit   uint
 	valuesizelimit uint
 	readonly       bool
-	path           string
+	path string
 	shanpshot      time.Duration
 	shanshotpath   string
 	f              *os.File
@@ -238,21 +239,26 @@ func (mdb *Magneticdb) openPath(path string) (*os.File, error) {
 		return nil, err
 	}
 
-	_, errinfo := item.Stat()
-	if errinfo == nil {
-		return nil, errinfo
+	defer item.Close()
+	reader := bufio.NewReader(item)
+	buf := make([]byte, 1024)
+	// Provide reading from db
+  for {
+		v, _ := reader.Read(buf)
+		fmt.Println(v)
 	}
+
 	return item, nil
 }
 
 // Flush: write data to teh disk
 func (mdb *Magneticdb) Flush() error {
-	result, err := json.Marshal(mdb.Buckets)
-	if err != nil {
-		return err
-	}
+   result, err := json.Marshal(mdb.Buckets)
+   if err != nil {
+     return err
+   }
 
-	length := len(BEGIN) + 2 + len(result)
+  length := len(BEGIN)+2 + len(result)
 	b := bytes.NewBuffer(make([]byte, length)[:0])
 	b.Write(BEGIN)
 	b.Write(result)
