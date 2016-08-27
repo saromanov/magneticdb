@@ -2,6 +2,7 @@ package magneticdb
 
 import (
 	"errors"
+	"sort"
 	"github.com/google/btree"
 )
 
@@ -49,6 +50,17 @@ func (idx *Index) DropIndex(title string) error {
 	}
 	delete(idx.indexies, title)
 	return nil
+}
+
+// List returns list of the available indexes
+func (idx *Index) List() []string {
+	idxes := make([]string, 0, len(idx.indexies))
+	for key, _ := range idx.indexies {
+		idxes = append(idxes, key)
+	}
+
+	sort.Strings(idxes)
+	return idxes
 }
 
 func (idx *Index) Equal(id int) {
