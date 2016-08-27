@@ -214,7 +214,7 @@ func (mdb *Magneticdb) Stat() map[string]string {
 
 // String return string representation(Path) for magneticdb
 func (mdb *Magneticdb) String() string {
-	return fmt.Sprintf("Path: %s")
+	return fmt.Sprintf("Path: %s", mdb.path)
 }
 
 // Close provides closing current session od Magneticdb

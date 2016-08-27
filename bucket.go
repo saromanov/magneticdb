@@ -27,6 +27,7 @@ type Bucket struct {
 	keysize   uint
 	valuesize uint
 	compress bool
+  title    string
 
 	mutex *sync.RWMutex
 }
@@ -59,6 +60,7 @@ func (b *Bucket) CreateBucket(title string, cfg *BucketConfig) error {
 	}
 	b.items[title] = []*Item{}
 	b.mutex = &sync.RWMutex{}
+  b.title = title
 	return nil
 }
 
@@ -145,6 +147,11 @@ func (b *Bucket) Buckets()([]string, error) {
 	sort.Strings(items)
 
 	return items, nil
+}
+
+// Name returns title of the bucket
+func (b *Bucket) Name() string {
+  return b.title
 }
 
 func (b *Bucket) read(title string, key []byte) (*Item, error) {
