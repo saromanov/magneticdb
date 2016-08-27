@@ -1,6 +1,7 @@
 package magneticdb
 
 import (
+	"fmt"
 	"errors"
 	"sort"
 	"github.com/google/btree"
@@ -29,8 +30,13 @@ func (idx *Index) CreateIndex(title string){
 	idx.indexies[title] = &IndexEntry{}
 }
 
-func (idx *Index) Put(title []byte) {
-	idx.tree.ReplaceOrInsert(&IndexEntry{Key: title})
+func (idx *Index) Put(title []byte) error {
+	item := idx.tree.ReplaceOrInsert(&IndexEntry{Key: title})
+	if item == nil {
+		return fmt.Errorf("Unable to create a new index on btree")
+	}
+
+	return nil
 }
 
 func (idx *Index) FindIndex(title string) (*IndexEntry, error) {
