@@ -256,6 +256,8 @@ func (mdb *Magneticdb) Flush() error {
   length := len(BEGIN)+2 + len(result)
 	b := bytes.NewBuffer(make([]byte, length)[:0])
 	b.Write(BEGIN)
+	b.Write(result)
+	b.Write(END)
 
 	return nil
 
