@@ -1,13 +1,13 @@
 package magneticdb
 
 import (
-	"errors"
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
 	"time"
-  "bytes"
 	//"log"
 )
 
@@ -19,8 +19,8 @@ var (
 )
 
 var (
-  BEGIN = []byte("0k76")
-  END = []byte("z7ok")
+	BEGIN = []byte("0k76")
+	END   = []byte("z7ok")
 )
 
 // MagneticdbOpt provides options
@@ -37,6 +37,7 @@ type Magneticdb struct {
 	keysizelimit   uint
 	valuesizelimit uint
 	readonly       bool
+	path           string
 	shanpshot      time.Duration
 	shanshotpath   string
 	f              *os.File
@@ -54,18 +55,16 @@ type Magneticdb struct {
 }
 
 // New provides setnew path to DB
-func New(f *os.File, open bool, opt *MagneticdbOpt) (*Magneticdb, error) {
+func New(path string, open bool, opt *MagneticdbOpt) (*Magneticdb, error) {
 	if opt == nil {
 		opt = defaultParams()
 	}
 
-	path := "default"
 	mdb := &Magneticdb{
 		keysizelimit:   20,
 		valuesizelimit: 1000,
 		readonly:       false,
-		f:              f,
-		//path:           path,
+		path:           path,
 		schemas:        map[string]*Schema{},
 		commitlock:     &sync.RWMutex{},
 		statlock:       &sync.RWMutex{},
@@ -75,7 +74,7 @@ func New(f *os.File, open bool, opt *MagneticdbOpt) (*Magneticdb, error) {
 		compress:       opt.Compress,
 	}
 	var err error
-	//var f *os.File
+	var f *os.File
 	if open {
 		f, err = mdb.openPath(path)
 	} else {
@@ -248,12 +247,12 @@ func (mdb *Magneticdb) openPath(path string) (*os.File, error) {
 
 // Flush: write data to teh disk
 func (mdb *Magneticdb) Flush() error {
-   result, err := json.Marshal(mdb.Buckets)
-   if err != nil {
-     return err
-   }
+	result, err := json.Marshal(mdb.Buckets)
+	if err != nil {
+		return err
+	}
 
-  length := len(BEGIN)+2 + len(result)
+	length := len(BEGIN) + 2 + len(result)
 	b := bytes.NewBuffer(make([]byte, length)[:0])
 	b.Write(BEGIN)
 	b.Write(result)
