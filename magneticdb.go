@@ -2,6 +2,7 @@ package magneticdb
 
 import (
 	"errors"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sync"
@@ -64,7 +65,7 @@ func New(f *os.File, open bool, opt *MagneticdbOpt) (*Magneticdb, error) {
 		valuesizelimit: 1000,
 		readonly:       false,
 		f:              f,
-		path:           path,
+		//path:           path,
 		schemas:        map[string]*Schema{},
 		commitlock:     &sync.RWMutex{},
 		statlock:       &sync.RWMutex{},
@@ -74,7 +75,7 @@ func New(f *os.File, open bool, opt *MagneticdbOpt) (*Magneticdb, error) {
 		compress:       opt.Compress,
 	}
 	var err error
-	var f *os.File
+	//var f *os.File
 	if open {
 		f, err = mdb.openPath(path)
 	} else {
@@ -213,7 +214,7 @@ func (mdb *Magneticdb) Stat() map[string]string {
 
 // String return string representation(Path) for magneticdb
 func (mdb *Magneticdb) String() string {
-	return fmt.Sprintf("Path: %s", mdb.path)
+	return fmt.Sprintf("Path: %s")
 }
 
 // Close provides closing current session od Magneticdb
@@ -247,14 +248,16 @@ func (mdb *Magneticdb) openPath(path string) (*os.File, error) {
 
 // Flush: write data to teh disk
 func (mdb *Magneticdb) Flush() error {
-   result, err = json.Marshal(mdb.Buckets)
+   result, err := json.Marshal(mdb.Buckets)
    if err != nil {
      return err
    }
 
-  length := len(MAGIC_BEG)+2 + len(result)
+  length := len(BEGIN)+2 + len(result)
 	b := bytes.NewBuffer(make([]byte, length)[:0])
-	b.Write(MAGIC_BEG)
+	b.Write(BEGIN)
+
+	return nil
 
 }
 
