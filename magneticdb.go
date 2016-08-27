@@ -251,7 +251,8 @@ func (mdb *Magneticdb) openPath(path string) (*os.File, error) {
 	return item, nil
 }
 
-// Flush: write data to teh disk
+// Flush: write data to the disk
+// append all collections and all of items
 func (mdb *Magneticdb) Flush() error {
    result, err := json.Marshal(mdb.Buckets)
    if err != nil {
