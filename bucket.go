@@ -22,6 +22,8 @@ type BucketConfig struct {
 	compress bool
 }
 
+// Bucket provides a central store for the items
+// Maybe need to change it
 type Bucket struct {
 	items     map[string][]*Item
 	keysize   uint
