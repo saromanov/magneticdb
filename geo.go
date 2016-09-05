@@ -60,6 +60,36 @@ func (spt *Spatial) PutPoints(name string, p []*Point) error {
 	return nil
 }
 
+// PutPoints set a new points
+func (spt *Spatial) PutTriangles(name string, p []*Triangle) error {
+	spt.lock.Lock()
+	defer spt.lock.Unlock()
+
+	// Checking, that list of the points is not empty
+	if len(p) == 0 {
+		return fmt.Errorf("List of the points not contains elemenyts")
+	}
+
+	nodes := []*kdtree.Node{}
+	for _, point := range p {
+		// convert point to the kd tree node
+		coord := &kdtree.Coordinate{
+			Values: []float64{point.X, point.Y, point.Z},
+		}
+
+		nodes = append(nodes, &kdtree.Node{Coordinate: coord})
+	}
+
+	// create of the new tree
+	tree, err := kdtree.NewTree(nodes, 3)
+	if err != nil {
+		return err
+	}
+
+	spt.items[name] = tree
+	return nil
+}
+
 // SearchPoint provides searching of teh near points on the tree
 func (spt *Spatial) SearchPoints(name string, p Point, dist float64) ([]*Point, error) {
 	tree, ok := spt.items[name]
