@@ -13,6 +13,12 @@ type Point struct {
 	X, Y float64
 }
 
+// Triangle
+type Triangle struct {
+	Name string
+	X,Y,Z float64
+}
+
 // Dist struct return distance between a two items
 type Dist struct {
 	Result []float64
@@ -26,8 +32,8 @@ type Spatial struct {
 
 // PutPoints set a new points
 func (spt *Spatial) PutPoints(name string, p []*Point) error {
-  spt.lock.Lock()
-  defer spt.lock.Unlock()
+	spt.lock.Lock()
+	defer spt.lock.Unlock()
 
 	// Checking, that list of the points is not empty
 	if len(p) == 0 {
@@ -41,45 +47,45 @@ func (spt *Spatial) PutPoints(name string, p []*Point) error {
 			Values: []float64{point.X, point.Y},
 		}
 
-    nodes = append(nodes, &kdtree.Node{Coordinate: coord})
+		nodes = append(nodes, &kdtree.Node{Coordinate: coord})
 	}
 
-  // create of the new tree
+	// create of the new tree
 	tree, err := kdtree.NewTree(nodes, 2)
 	if err != nil {
 		return err
 	}
 
-  spt.items[name] = tree
+	spt.items[name] = tree
 	return nil
 }
 
 // SearchPoint provides searching of teh near points on the tree
 func (spt *Spatial) SearchPoints(name string, p Point, dist float64) ([]*Point, error) {
-  tree, ok := spt.items[name]
-  if !ok {
-    return nil, fmt.Errorf("tree with the name %s is not defined", name)
-  }
+	tree, ok := spt.items[name]
+	if !ok {
+		return nil, fmt.Errorf("tree with the name %s is not defined", name)
+	}
 
-  var retNodes []*Point
+	var retNodes []*Point
 	walker := func(node *kdtree.Node) bool {
-    if node == nil || node.Coordinate == nil || len(node.Coordinate.Values) != 2 {
-      return false
-    }
-		retNodes = append(retNodes, &Point{X:node.Coordinate.Values[0], Y:node.Coordinate.Values[1]})
+		if node == nil || node.Coordinate == nil || len(node.Coordinate.Values) != 2 {
+			return false
+		}
+		retNodes = append(retNodes, &Point{X: node.Coordinate.Values[0], Y: node.Coordinate.Values[1]})
 		return false
 	}
 
-  err := tree.Search(&kdtree.Coordinate{Values: []float64{p.X, p.Y}}, dist, walker)
-  if err != nil {
-    return nil, err
-  }
+	err := tree.Search(&kdtree.Coordinate{Values: []float64{p.X, p.Y}}, dist, walker)
+	if err != nil {
+		return nil, err
+	}
 
-  if len(retNodes) == 0 {
-    return nil, fmt.Errorf("Not found")
-  }
+	if len(retNodes) == 0 {
+		return nil, fmt.Errorf("Not found")
+	}
 
-  return retNodes, nil
+	return retNodes, nil
 }
 
 // Distance provides a distance between two points
