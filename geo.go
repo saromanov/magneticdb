@@ -37,7 +37,7 @@ func (spt *Spatial) PutPoints(name string, p []*Point) error {
 
 	// Checking, that list of the points is not empty
 	if len(p) == 0 {
-		return fmt.Errorf("List of the points not contains elemenyts")
+		return fmt.Errorf("List of the points not contains elements")
 	}
 
 	nodes := []*kdtree.Node{}
@@ -67,7 +67,7 @@ func (spt *Spatial) PutTriangles(name string, p []*Triangle) error {
 
 	// Checking, that list of the points is not empty
 	if len(p) == 0 {
-		return fmt.Errorf("List of the points not contains elemenyts")
+		return fmt.Errorf("List of the points not contains elements")
 	}
 
 	nodes := []*kdtree.Node{}
