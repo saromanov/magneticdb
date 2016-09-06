@@ -40,6 +40,7 @@ func (spt *Spatial) PutPoints(name string, p []*Point) error {
 		return fmt.Errorf("List of the points not contains elements")
 	}
 
+	// COnstruction of the nodes
 	nodes := []*kdtree.Node{}
 	for _, point := range p {
 		// convert point to the kd tree node
