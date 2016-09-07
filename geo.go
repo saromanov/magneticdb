@@ -98,6 +98,7 @@ func (spt *Spatial) SearchPoints(name string, p Point, dist float64) ([]*Point, 
 		return nil, fmt.Errorf("tree with the name %s is not defined", name)
 	}
 
+	// append nodes to the search points
 	var retNodes []*Point
 	walker := func(node *kdtree.Node) bool {
 		if node == nil || node.Coordinate == nil || len(node.Coordinate.Values) != 2 {
